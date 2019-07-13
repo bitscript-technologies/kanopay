@@ -1,0 +1,21 @@
+{
+  "name": "kanopay",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "kanopay": "emulator.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.493.0",
+    "dotenv": "^8.0.0",
+    "enquirer": "^2.3.1",
+    "mongoose": "^5.6.4"
+  }
+}
