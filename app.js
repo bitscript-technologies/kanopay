@@ -35,6 +35,7 @@ app.post('/sms', (req, res) => {
     let num = req.body.inboundSMSMessageList.inboundSMSMessage[0].senderAddress.split("+63")[1];
     require('./fn')(req.body.inboundSMSMessageList.inboundSMSMessage[0].message, num, msg => {
         User.getUser(num, (err, user) => {
+            console.log(num, msg);
             axios.post(`https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/3855/requests?access_token=${user.access_token}`, {
                 address: num,
                 message: msg

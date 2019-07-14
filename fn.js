@@ -49,6 +49,7 @@ ${user.verified ? "LOAD <number> <amount> - Top-up money to a User" : ""}`);
                             break;
                         case "PAY":
                             Partner.find({}).then(async partners => {
+                                console.log(partners);
                                 let s = `To pay to the following providers, enter the number code associated to them:\n`;
                                 await partners.forEach(x => {
                                     s+=`${x.code} for ${x.name}\n`;
