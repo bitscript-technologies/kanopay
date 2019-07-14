@@ -3,27 +3,34 @@ const mongoose = require('mongoose');
 const userSchema = mongoose.Schema({
     name: String,
     phone_number: String,
-    balance: Number,
+    balance: {
+        type: Number,
+        default: 0
+    },
+    load_balance: {
+        type: Number,
+        default: 0
+    },
     city: String,
     province: String,
     state_msg: {
         type: String,
         default: "START"
     },
-    verified: Boolean,
-    transactions: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Transaction'
-    }],
-    lang: String
+    verified: {
+        type: Boolean,
+        default: false
+    },
+    lang: String,
+    access_token: String
 });
 
 userSchema.statics.getUser = function (phone_number, cb) {
     this.model('User').findOne({phone_number}, cb);
 };
 
-userSchema.statics.createUser = function (phone_number) {
-    this.model('User').create({phone_number});
+userSchema.statics.createUser = function (phone_number, access_token) {
+    this.model('User').create({phone_number, access_token});
 };
 
 userSchema.statics.setLanguage = function(lang, phone_number) {

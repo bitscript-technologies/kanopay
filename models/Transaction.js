@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const axios = require('axios');
 const User = require('./User');
 
 const transactionSchema = mongoose.Schema({
@@ -19,6 +20,10 @@ const transactionSchema = mongoose.Schema({
     time: {
         type: Date,
         default: Date.now
+    },
+    load: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -38,8 +43,37 @@ transactionSchema.statics.transfer = function (sender, recipient, amount, cb) {
                         recipient: recipient_info,
                         money_transferred: amount,
                     });
-                    cb(`You have successfully transfered ${amount} pesos to ${recipient_info.name} (${recipient}).`);
+                    axios.post(`https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/3855/requests?access_token=${recipient_info.access_token}`, {
+                        address: recipient_info.phone_number,
+                        message: `You have received ${amount} pesos from ${sender_info.name} (${sender}). Your new balance is ${recipient_info.balance} pesos.`
+                    });
+                    cb(`You have successfully transfered ${amount} pesos to ${recipient_info.name} (${recipient}). Your new balance is ${sender_info.balance} pesos.`);
                 }
+            });
+        }
+    });
+}
+
+transactionSchema.statics.load = function (sender, recipient, amount, cb) {
+    User.findOne({ phone_number: recipient }).then(recipient_info => {
+        if (recipient_info === null) cb(`Unable to process transaction as ${recipient} does not have a KanoPay account.`);
+        else {
+            User.findOne({ phone_number: sender }).then(sender_info => {
+                sender_info.load_balance+=amount;
+                sender_info.save();
+                recipient_info.balance+=amount;
+                recipient_info.save();
+                this.model('Transaction').create({
+                    sender: sender_info,
+                    recipient: recipient_info,
+                    money_transferred: amount,
+                    load: true
+                });
+                axios.post(`https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/3855/requests?access_token=${recipient_info.access_token}`, {
+                    address: recipient_info.phone_number,
+                    message: `You have received ${amount} pesos from ${sender_info.name} (${sender}). Your new balance is ${recipient_info.balance} pesos.`
+                });
+                cb(`You have successfully transfered ${amount} pesos to ${recipient_info.name} (${recipient}). Your new balance is ${sender_info.balance} pesos${sender_info.verified ? " while you currently owe PHP"+sender_info.load_balance : ""}.`);
             });
         }
     });
