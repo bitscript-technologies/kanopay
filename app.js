@@ -45,8 +45,10 @@ app.post('/sms', (req, res) => {
 });
 
 app.get('/:cell', (req, res) => {
-    User.find({phone_number: req.params.cell}).populate(['transactions']).then(user => {
-        Transaction.find({$or:[{sender: user}, {recipient: user}]}).then(transactions => {
+    User.findOne({phone_number: req.params.cell}).then(user => {
+        console.log(user);
+        if (user === null) return res.json({ error: "KanoPay user not found." });
+        Transaction.find({$or:[{sender: user}, {recipient: user}]}).populate(['sender', 'recipient', 'partner']).then(transactions => {
             user.transactions = transactions;
             res.json([user, transactions]);
         });
