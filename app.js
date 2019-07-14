@@ -60,7 +60,8 @@ app.post('/partner', async (req, res) => {
     Partner.create({
         name: req.body.name,
         username: req.body.username,
-        password: pass
+        password: pass,
+        code: req.body.code
     }).then(() => res.send());
 });
 
