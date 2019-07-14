@@ -64,4 +64,4 @@ app.post('/partner', async (req, res) => {
     }).then(() => res.send());
 });
 
-app.listen(3000);
+app.listen(process.env.PORT || 3000);
